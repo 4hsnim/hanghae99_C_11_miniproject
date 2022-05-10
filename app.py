@@ -12,6 +12,10 @@ db = client.dbsparta
 def home():
     return render_template('login.html')
 
+@app.route('/join')
+def join():
+    return render_template('join.html')
+
 # @app.route("/movie", methods=["POST"])
 # def movie_post():
 #     url_receive = request.form['url_give']

@@ -45,6 +45,7 @@
             font-family: 'Nanum Gothic', sans-serif;
         }
 
+
         body {
             height: auto;
             background-color: white;
@@ -62,9 +63,8 @@
             padding: 5px;
         }
 
-        header h1 {
-            font-size: 40px;
-            font-weight: bold;
+        header h2 {
+            font-size: 30px;
             margin: 20px auto auto 30px;
         }
 
@@ -114,85 +114,71 @@
 
         /* SECTION */
         section {
-            width:95%;
-            margin: 10px;
+            width: 95%;
             box-sizing: border-box;
         }
 
-        .jumbotron {
+        .mypic {
+            width: 100%;
+            height: 50px;
+
             background-color: white;
-            margin: 10px auto auto auto;
+            background-position: center;
+            background-size: cover;
 
-            /*            box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-                        border-bottom: 1px solid rgba(0, 0, 0, .15);*/
-        }
+            color: #000;
 
-        .wrap {
-            width: 1250px;
-            margin: 10px auto auto auto;
-        }
-
-        .posting-box {
-            max-width: 1500px;
-            width: 95%;
-            margin: 10px auto auto auto;
-
-        }
-
-        .custom-file {
-            margin-bottom: 10px;
-        }
-
-        .custom-file-input {
-            background-color: transparent;
-        }
-
-        .container {
-            padding: 2px;
-
-        }
-
-        .container-h2 {
-            font-size: 25px;
-        }
-
-        #posting-btn {
-            float: right;
-        }
-
-        /* ARTICLE */
-        #cards-box {
+            display: flex;
             flex-direction: column;
-            margin-bottom: 10px;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .mypic > h1 {
+            font-size: 30px;
+        }
+
+        .mybox {
+            width: 95%;
+            max-width: 700px;
             padding: 20px;
+            box-shadow: 0px 0px 10px 0px lightblue;
+            margin: 20px auto;
         }
 
-        .card-columns {
-            margin: 100px 0 100px 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            background-color: transparent;
+        .mybucket {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .text-muted {
-            float: right;
+        .mybucket > input {
+            width: 70%;
         }
 
-        #posting-box-hr {
-            border-top: 2px solid darkgray;
+        .mybox > li {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 10px;
+            min-height: 48px;
         }
 
-        .card-text-hr {
-            border-top: 1.5px solid darkgray;
+        .mybox > li > h2 {
+            max-width: 75%;
+            font-size: 20px;
+            font-weight: 500;
+            margin-right: auto;
+            margin-bottom: 0px;
         }
 
-        /* ASIDE */
-        /*aside {*/
-        /*    background-color: #dddddd;*/
-        /*    width: 30%;*/
-        /*    margin: 10px;*/
-        /*    padding: 10px 10px 0 0;*/
-        /*}*/
+        .mybox > li > h2.done {
+            text-decoration: line-through
+        }
 
         /* FOOTER */
         footer {
@@ -214,10 +200,6 @@
             color: #767676;
         }
 
-        footer .site-links li {
-
-        }
-
         footer .site-links li:last-child {
             margin-right: 0;
         }
@@ -234,57 +216,51 @@
     </style>
     <script>
         $(document).ready(function () {
-            bsCustomFileInput.init()
-            listing()
-        })
+            show_bucket();
+        });
 
-        function listing() {
+        function show_bucket() {
+            $('#bucket-list').empty()
+
             $.ajax({
                 type: "GET",
-                url: "/diary",
+                url: "/bucket",
                 data: {},
                 success: function (response) {
-                    let diaries = response['all_diary']
-                    for (let i = 0; i < diaries.length; i++) {
-                        let title = diaries[i]['title']
-                        let content = diaries[i]['content']
-                        let file = diaries[i]['file']
-                        let time = diaries[i]['time']
+                    rows = response["buckets"]
 
-                        let temp_html = `<div class="card">
-                                            <img src="../static/${file}" class="card-img-top">
-                                            <div class="card-body">
-                                                <h5 class="card-title">🎇${title}🎇</h5>
-                                                <hr class="card-text-hr">
-                                                <p class="card-text text-secondary" id="card-text-box">${content}</p>
-                                                <hr class="card-text-hr">
-                                                <p class="card-text"><small class="text-muted">${time}</small><br></p>
-                                            </div>
-                                        </div>`
-                        $('#cards-box').append(temp_html)
+                    for (let i = 0; i < rows.length; i++) {
+                        let bucket = rows[i]['bucket']
+                        let num = rows[i]['num']
+                        let done = rows[i]['done']
+                        let temp_html = ``
+
+                        if (done == 0) {
+                            temp_html = `<li>
+                                            <h2>✅ ${bucket}</h2>
+                                            <button onclick="done_bucket(${num})" type="button" class="btn btn-outline-primary">완료!</button>
+                                       </li>`
+                        } else {
+                            temp_html = `<li>
+                                            <h2 class="done">✅ ${bucket}</h2>
+                                            <button onclick="undo_bucket(${num})" type="button" class="btn btn-outline-danger">취소</button>
+                                        </li>`
+                        }
+
+                        $('#bucket-list').append(temp_html)
                     }
                 }
-            })
+            });
         }
 
-        function posting() {
-            let title = $('#title').val()
-            let content = $("#content").val()
+        function save_bucket() {
 
-            let file = $('#file')[0].files[0]
-            let form_data = new FormData()
-
-            form_data.append("file_give", file)
-            form_data.append("title_give", title)
-            form_data.append("content_give", content)
+            let bucket = $('#bucket').val()
 
             $.ajax({
                 type: "POST",
-                url: "/diary",
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
+                url: "/bucket",
+                data: {bucket_give: bucket},
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload()
@@ -292,6 +268,43 @@
             });
         }
 
+        function delete_bucket(num) {
+
+            $.ajax({
+                type: "POST",
+                url: "/bucket/delete",
+                data: {num_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+        function done_bucket(num) {
+
+            $.ajax({
+                type: "POST",
+                url: "/bucket/done",
+                data: {num_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                }
+            });
+            window.location.reload()
+        }
+
+        function undo_bucket(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/undo",
+                data: {num_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                }
+            });
+            window.location.reload()
+        }
     </script>
 </head>
 
@@ -299,7 +312,7 @@
 <!--HEADER-->
 <header class="clearfix">
     <div class="header-h2">
-        <h1>🎊Fㅓㄴ🎊</h1>
+        <h2>🎊Fㅓㄴ🎊</h2>
     </div>
     <nav>
         <ul class="nav justify-content-end">
@@ -323,51 +336,19 @@
     <!--SECTION-->
     <section>
         <div class="wrap">
-            <div class="jumbotron jumbotron-fluid" id="jumbotron">
-                <div class="container">
-                    <h2 class="container-h2">&nbsp;&nbsp;&nbsp; 페스티벌 후기</h2>
-                    <div class="posting-box">
-                        <hr id="posting-box-hr">
-                        <br>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="file">
-                            <label class="custom-file-label" for="file">Choose file</label>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" class="form-control" id="title" placeholder="title">
-                        </div>
-                        <div class="form-group">
-                    <textarea class="form-control" id="content" rows="3"
-                              placeholder="content"></textarea>
-                        </div>
-                        <button id="posting-btn" onclick="posting()" type="button" class="btn btn-dark">저장</button>
-                    </div>
+            <div class="mypic">
+                <h1>community</h1>
+            </div>
+            <div class="mybox">
+                <div class="mybucket">
+                    <input id="bucket" class="form-control" type="text" placeholder="자, 다음엔 어디로 가볼까?😆">
+                    <button onclick="save_bucket()" type="button" class="btn btn-outline-primary">기록하기</button>
                 </div>
+            </div>
+            <div class="mybox" id="bucket-list">
             </div>
         </div>
-        <article>
-            <div class="card-columns" id="cards-box">
-                <div class="card">
-                    <img src="../static/월디페.jpg" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">🎇2021 WORLD DJ FESTIVAL🎇</h5>
-                        <hr class="card-text-hr">
-                        <p class="card-text text-secondary" id="card-text-box">Lorem ipsum dolor sit amet consectetur
-                            adipisicing elit.
-                            Quisquam iure minus exercitationem reprehenderit nihil omnis iusto id praesentium
-                            architecto,
-                            eius
-                            at consequuntur delectus ipsam alias. Ea, eos beatae! Vero, ex.</p>
-                        <hr class="card-text-hr">
-                        <p class="card-text"><small class="text-muted">2021-10-10</small><br></p>
-                    </div>
-                </div>
-            </div>
-        </article>
     </section>
-
-    <!--ASIDE-->
-    <!--<aside><h1>aside section</h1></aside>-->
 </main>
 
 

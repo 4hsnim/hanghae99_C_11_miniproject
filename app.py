@@ -14,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = "./static/profile_pics"
 SECRET_KEY = 'SPARTA'
 
 # client = MongoClient('localhost', 27017)
-client = MongoClient('13.125.75.103', 27017, username="test", password="test")
+client = MongoClient('3.39.23.231', 27017, username="test", password="test")
 db = client.dbsparta_festival
 
 
@@ -37,18 +37,6 @@ def login():
     return render_template('login.html', msg=msg)
 
 
-@app.route('/user/<username>')
-def user(username):
-    # 각 사용자의 프로필과 글을 모아볼 수 있는 공간
-    token_receive = request.cookies.get('mytoken')
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        status = (username == payload["id"])  # 내 프로필이면 True, 다른 사람 프로필 페이지면 False
-
-        user_info = db.users.find_one({"username": username}, {"_id": False})
-        return render_template('user.html', user_info=user_info, status=status)
-    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("home"))
 
 
 @app.route('/sign_in', methods=['POST'])
@@ -65,7 +53,7 @@ def sign_in():
          'id': username_receive,
          'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
         }
-        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256').decode('utf-8')
 
         return jsonify({'result': 'success', 'token': token})
     # 찾지 못하면
@@ -95,16 +83,6 @@ def check_dup():
     return jsonify({'result': 'success', 'exists': exists})
 
 
-@app.route('/update_profile', methods=['POST'])
-def save_img():
-    token_receive = request.cookies.get('mytoken')
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        # 프로필 업데이트
-        return jsonify({"result": "success", 'msg': '프로필을 업데이트했습니다.'})
-    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("home"))
-
 
 @app.route('/posting', methods=['POST'])
 def posting():
@@ -127,17 +105,83 @@ def get_posts():
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("home"))
 
+@app.route('/community')
+def home3():
+   return render_template('community.html')
 
-@app.route('/update_like', methods=['POST'])
-def update_like():
-    token_receive = request.cookies.get('mytoken')
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        # 좋아요 수 변경
-        return jsonify({"result": "success", 'msg': 'updated'})
-    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("home"))
 
+@app.route('/comment')
+def home1():
+    return render_template('post.html')
+
+
+@app.route('/diary', methods=['GET'])
+def show_diary():
+    diaries = list(db.diary.find({}, {'_id': False}))
+    return jsonify({'all_diary': diaries})
+
+
+@app.route('/diary', methods=['POST'])
+def save_diary():
+    title_receive = request.form['title_give']
+    content_receive = request.form['content_give']
+
+    file = request.files['file_give']
+
+    extension = file.filename.split('.')[-1]
+
+    today = datetime.now()
+    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f'file-{mytime}'
+
+    save_to = f'static/{filename}.{extension}'
+    file.save(save_to)
+
+    doc = {
+        'title': title_receive,
+        'content': content_receive,
+        'file': f'{filename}.{extension}',
+        'time': today.strftime('%Y.%m.%d')
+    }
+
+    db.diary.insert_one(doc)
+
+    return jsonify({'msg': '저장 완료!'})
+
+
+@app.route("/bucket", methods=["POST"])
+def bucket_post():
+    bucket_receive = request.form['bucket_give']
+
+    bucket_list = list(db.bucket.find({},{'_id':False}))
+    count = len(bucket_list) + 1
+
+    doc = {
+        'num':count,
+        'bucket':bucket_receive,
+        'done':0
+    }
+
+    db.bucket.insert_one(doc)
+
+    return jsonify({'msg': '등록 완료!'})
+
+@app.route("/bucket/done", methods=["POST"])
+def bucket_done():
+    num_receive = request.form["num_give"]
+    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 1}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/bucket/undo", methods=["POST"])
+def bucket_undo():
+    num_receive = request.form["num_give"]
+    db.bucket.update_one({'num': int(num_receive)}, {'$set': {'done': 0}})
+    return jsonify({'msg': '버킷 완료!'})
+
+@app.route("/bucket", methods=["GET"])
+def bucket_get():
+    buckets_list = list(db.bucket.find({},{'_id':False}))
+    return jsonify({'buckets':buckets_list})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

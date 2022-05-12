@@ -38,12 +38,13 @@
     <!--FILE UPLOAD LIBRARY-->
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
 
-    <title>축제를 들어라, 하나뿐인 인생!</title>
+    <title>스파르타코딩클럽 | 부트스트랩 연습하기</title>
 
     <style>
         * {
             font-family: 'Nanum Gothic', sans-serif;
         }
+
 
         body {
             height: auto;
@@ -62,9 +63,8 @@
             padding: 5px;
         }
 
-        header h1 {
-            font-size: 40px;
-            font-weight: bold;
+        header h2 {
+            font-size: 30px;
             margin: 20px auto auto 30px;
         }
 
@@ -114,17 +114,15 @@
 
         /* SECTION */
         section {
-            width:95%;
+            width: 95%;
             margin: 10px;
             box-sizing: border-box;
         }
 
         .jumbotron {
+            width: 95%;
             background-color: white;
             margin: 10px auto auto auto;
-
-            /*            box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-                        border-bottom: 1px solid rgba(0, 0, 0, .15);*/
         }
 
         .wrap {
@@ -186,14 +184,6 @@
             border-top: 1.5px solid darkgray;
         }
 
-        /* ASIDE */
-        /*aside {*/
-        /*    background-color: #dddddd;*/
-        /*    width: 30%;*/
-        /*    margin: 10px;*/
-        /*    padding: 10px 10px 0 0;*/
-        /*}*/
-
         /* FOOTER */
         footer {
             margin-top: 20px;
@@ -212,10 +202,6 @@
             margin: 5px;
             font-size: 12px;
             color: #767676;
-        }
-
-        footer .site-links li {
-
         }
 
         footer .site-links li:last-child {
@@ -267,7 +253,7 @@
             })
         }
 
-        function posting() {
+        function posts() {
             let title = $('#title').val()
             let content = $("#content").val()
 
@@ -299,7 +285,7 @@
 <!--HEADER-->
 <header class="clearfix">
     <div class="header-h2">
-        <h1>🎊Fㅓㄴ🎊</h1>
+        <h2>🎊Fㅓㄴ🎊</h2>
     </div>
     <nav>
         <ul class="nav justify-content-end">
@@ -340,11 +326,12 @@
                     <textarea class="form-control" id="content" rows="3"
                               placeholder="content"></textarea>
                         </div>
-                        <button id="posting-btn" onclick="posting()" type="button" class="btn btn-dark">저장</button>
+                        <button id="posting-btn" onclick="posts()" type="button" class="btn btn-dark">저장</button>
                     </div>
                 </div>
             </div>
         </div>
+      <!--ARTICLE-->
         <article>
             <div class="card-columns" id="cards-box">
                 <div class="card">
@@ -366,8 +353,6 @@
         </article>
     </section>
 
-    <!--ASIDE-->
-    <!--<aside><h1>aside section</h1></aside>-->
 </main>
 
 

@@ -25,7 +25,7 @@
 - AWS EC2 
 <br>
 ## 3. 실행화면
-<img src="https://www.youtube.com/watch?v=sQBXgccvE98&list=PLuHgQVnccGMA52uRBmSwqcvtI5IMoFclJ">
+<img src="https://user-images.githubusercontent.com/102935156/168025626-3620f704-a65e-4a70-9c01-6a9bf0cfffa0.PNG">
 자세한 영상 :
 <br>
 ## 4. 핵심기능
